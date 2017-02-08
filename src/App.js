@@ -66,9 +66,6 @@ class App extends Component {
       </form>
     </span>
 
-    //Only runs if the form has been submitted
-    //if (this.state.submitted && this.state.inventory.length) {
-
       rows = this.state.inventory.map(function (item,index) {
 
         //console.log(JSON.stringify(item));
@@ -105,21 +102,6 @@ class App extends Component {
           </Table>
         </span>
       )
-
-      /*table =  ( 
-        <span>
-          <table>
-          <tr>
-            <th> Name </th>
-            <th> Description </th>
-            <th> Quantity </th>
-          </tr>
-            {rows}
-          </table>
-        </span>
-      )*/
-      
-    //}
 
 
 
@@ -159,16 +141,6 @@ class App extends Component {
     firebase.database().ref('inventoryapp/'+ id ).set({
       inventory: details
     });
-
-    // //console.log(JSON.stringify(this.state.inventory));
-
-    // const newInventoryItem = this.state.inventory.slice()
-
-    // //if(details.name){
-    //    newInventoryItem.push(details)
-    // //}
-
-    // console.log(JSON.stringify(newInventoryItem));
 
     this.setState({
       inventory: [],
