@@ -4,6 +4,38 @@ import './App.css';
 
 import { Table } from 'react-bootstrap'
 
+//Firebase dependencies
+var uuid = require('uuid');
+var firebase = require('firebase');
+
+function loadData(props){
+  
+    var self = props;
+    var firebaseRef = firebase.database().ref();
+    firebaseRef.once('value').then((snapshot) => {
+
+      snapshot.forEach(function(data){
+        //console.log(data.val());
+        self.setState({
+          inventory: self.state.inventory.concat(data.val())
+        });
+      });
+    });
+  
+}
+
+
+var config = {
+    apiKey: "AIzaSyBW6HNzdnMv7uvHV670hzs1AYxyBeRXF_g",
+    authDomain: "inventoryapp-bace2.firebaseapp.com",
+    databaseURL: "https://inventoryapp-bace2.firebaseio.com",
+    storageBucket: "inventoryapp-bace2.appspot.com",
+    messagingSenderId: "584481905960"
+  };
+  firebase.initializeApp(config);
+
+
+
 class App extends Component {
 
   constructor(props) {
@@ -14,13 +46,15 @@ class App extends Component {
     }
   }
 
+  componentDidMount(){
+     loadData(this);
+  }
+
+
   render() {
     var inputForm;
     var table;
     var rows;
-
-    console.log("inventoryArray: " + JSON.stringify(this.state.inventory));
-
 
     inputForm = <span>
       <h2>Please enter your inventory Item</h2>
@@ -33,16 +67,26 @@ class App extends Component {
     </span>
 
     //Only runs if the form has been submitted
-    if (this.state.submitted && this.state.inventory.length) {
+    //if (this.state.submitted && this.state.inventory.length) {
 
       rows = this.state.inventory.map(function (item,index) {
-        return (
-          <tr key={index}>
-            <th> {item.name} </th>
-            <th> {item.description} </th>
-            <th> {item.quantity} </th>
+
+        //console.log(JSON.stringify(item));
+
+        return Object.keys(item).map(function(s){ 
+          //console.log("ITEM:" + item[s].name)
+          //console.log("ITEM:" + item[s].inventory.name) 
+          return (
+          //<tr key={index}>
+          <tr key={s}>
+            <th> {item[s].inventory.name} </th>
+            <th> {item[s].inventory.description} </th>
+            <th> {item[s].inventory.quantity} </th>
           </tr>
         )
+      });
+      
+        
       });
 
       table = (
@@ -75,7 +119,7 @@ class App extends Component {
         </span>
       )*/
       
-    }
+    //}
 
 
 
@@ -108,19 +152,30 @@ class App extends Component {
         el.value = null
       }
     })
+    
 
-    const newInventoryItem = this.state.inventory.slice()
+    //Saving to firebase
+    var id = uuid.v1();
+    firebase.database().ref('inventoryapp/'+ id ).set({
+      inventory: details
+    });
 
-    if(details.name){
-       newInventoryItem.push(details)
-    }
+    // //console.log(JSON.stringify(this.state.inventory));
+
+    // const newInventoryItem = this.state.inventory.slice()
+
+    // //if(details.name){
+    //    newInventoryItem.push(details)
+    // //}
+
+    // console.log(JSON.stringify(newInventoryItem));
 
     this.setState({
-      inventory: newInventoryItem,
+      inventory: [],
       submitted: true
     })
 
-
+    loadData(this);
 
   }
 
